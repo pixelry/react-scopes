@@ -1,0 +1,27 @@
+{
+  "name": "@pixelry/react-scopes",
+  "version": "0.0.0",
+  "description": "Lightweight cross component state management allowing multiple components to independently access, use, and set the same shared state.",
+  "main": "lib/index.js",
+  "scripts": {
+    "clean": "rimraf lib",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "prepack": "npm run clean && npm run build"
+  },
+  "files": [
+    "lib/**/*",
+    "src/**/*"
+  ],
+  "author": "Pixelry.com (https://github.com/pixelry)",
+  "license": "MIT",
+  "repository": "github:pixelry/react-scopes",
+  "devDependencies": {
+    "@types/react": "^18.2.33",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  }
+}
