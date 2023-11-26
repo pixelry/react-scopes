@@ -136,7 +136,7 @@ export function Counter() {
 
 Passing the unchanging scope object as a prop (or via context) allows each participating component to control how they subscribe and rerender. If they need to subscribe to the state value they can `use` the scope. If they need the state value in a callback they can `get` the value without needing to subscribe. They can `set` the value without having to invoke parent callbacks or use the state value.
 
-Additional scope types are listed below, along with recipes for composting scopes into stores.
+Additional scope types are listed below, along with recipes for compositing scopes into stores.
 
 ## Object Scopes
 
