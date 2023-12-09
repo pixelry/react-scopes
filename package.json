@@ -1,6 +1,6 @@
 {
   "name": "@pixelry/react-scopes",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lightweight cross component state management allowing multiple components to independently access, use, and set the same shared state.",
   "main": "lib/index.js",
   "scripts": {
