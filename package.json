@@ -17,6 +17,13 @@
   "author": "Pixelry.com (https://github.com/pixelry)",
   "license": "MIT",
   "repository": "github:pixelry/react-scopes",
+  "keywords": [
+    "react",
+    "state",
+    "hooks",
+    "signals"
+  ],
+  "homepage": "https://www.pixelry.com",
   "devDependencies": {
     "@babel/preset-env": "^7.23.3",
     "@babel/preset-react": "^7.23.3",

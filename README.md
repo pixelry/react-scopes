@@ -1,6 +1,6 @@
 # @pixelry/react-scopes
 
-Lightweight cross component state management allowing multiple components to independently access, use, and set the same shared state.
+Lightweight cross component state management allowing multiple components to independently access, use, and set the same shared state. A simple React solution to signals.
 
 React Scopes require React 18 or higher.
 
@@ -41,7 +41,8 @@ export function Counter() {
 // component that uses scope state
 //
 function CounterValue(props: { scope: IObjectScope<CounterState> }) {
-  // call `use` to hook the state of the scope and rerender on state changes
+  // call `use` to hook the state of the scope and
+  // rerender on state changes
   const state = props.scope.use();
 
   return <span>{state.count}</span>;
@@ -51,7 +52,8 @@ function CounterValue(props: { scope: IObjectScope<CounterState> }) {
 // component that gets and sets scope state
 //
 function CounterButton(props: { scope: IObjectScope<CounterState> }) {
-  // since the scope dependency is unchanging the callback is always the same object
+  // since the scope dependency is unchanging the callback is
+  // always the same object
   const handleIncrement = useCallback(() => {
     props.scope.set({
       // call `get` for the current state when needed in the callback
