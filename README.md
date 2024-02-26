@@ -1,4 +1,4 @@
-# @pixelry/react-scopes
+# Pixelry - React Scopes
 
 Lightweight cross component state management allowing multiple components to independently access, use, and set the same shared state. A simple React solution to signals.
 
