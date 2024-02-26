@@ -11,7 +11,7 @@ export class ObjectScope<Type> implements IObjectScope<Type> {
   private callbacks: Set<Callback>;
 
   constructor(initial: Type) {
-    this.data = { ...initial };
+    this.data = initial && { ...initial };
     this.callbacks = new Set<Callback>();
   }
 
