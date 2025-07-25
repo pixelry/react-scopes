@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import renderer from 'react-test-renderer';
+import { render, screen, Screen, fireEvent, act } from '@testing-library/react';
 import { useObjectScope, ObjectScope, IObjectScope } from '../lib';
 
 type ObjectScopeData = {
@@ -13,13 +13,17 @@ function ObjectScopeButton(props: { scope: IObjectScope<ObjectScopeData> }) {
     });
   }, [props.scope]);
 
-  return <button onClick={handleClick}>inc</button>;
+  return (
+    <button title="button" onClick={handleClick}>
+      inc
+    </button>
+  );
 }
 
-function ObjectScopeLabel(props: { scope: IObjectScope<ObjectScopeData> }) {
+function ObjectScopeValue(props: { scope: IObjectScope<ObjectScopeData> }) {
   const value = props.scope.use();
 
-  return JSON.stringify(value);
+  return <div title="value">{JSON.stringify(value)}</div>;
 }
 
 function ObjectScopeParent() {
@@ -27,77 +31,60 @@ function ObjectScopeParent() {
 
   return (
     <>
-      <ObjectScopeLabel scope={scope}></ObjectScopeLabel>
+      <ObjectScopeValue scope={scope}></ObjectScopeValue>
       <ObjectScopeButton scope={scope}></ObjectScopeButton>
     </>
   );
 }
 
+function getValue(screen: Screen): any {
+  const value = screen.getByTitle('value')?.textContent;
+  if (!value) {
+    return {};
+  }
+
+  return JSON.parse(value);
+}
+
+function getButton(screen: Screen): any {
+  return screen.getByTitle('button');
+}
+
 test('useObjectScope', () => {
-  function getLabelState(tree: any): any {
-    return JSON.parse(tree.rendered[0].rendered);
-  }
-
-  function getButton(tree: any): any {
-    return tree.rendered[1].rendered;
-  }
-
-  let tree: any;
   let state: any;
-  let button: any;
 
-  const component = renderer.create(<ObjectScopeParent />);
-
-  // update the tree
-  tree = component.toTree();
+  render(<ObjectScopeParent />);
 
   // validate the label state
-  state = getLabelState(tree);
+  state = getValue(screen);
   expect(state.value).toEqual(0);
 
-  renderer.act(() => {
-    button = getButton(tree).props.onClick();
-    component.update(<ObjectScopeParent />);
-  });
-
-  // update the tree
-  tree = component.toTree();
+  // click the button
+  fireEvent.click(getButton(screen));
 
   // validate the label state
-  state = getLabelState(tree);
+  state = getValue(screen);
   expect(state.value).toEqual(1);
 });
 
 test('ObjectScope', () => {
-  function getLabelState(tree: any): any {
-    return JSON.parse(tree.rendered);
-  }
-
   const scope = new ObjectScope<ObjectScopeData>({ value: 0 });
 
-  let tree: any;
   let state: any;
 
-  const component = renderer.create(<ObjectScopeLabel scope={scope} />);
-
-  // update the tree
-  tree = component.toTree();
+  render(<ObjectScopeValue scope={scope} />);
 
   // validate the label state
-  state = getLabelState(tree);
+  state = getValue(screen);
   expect(state.value).toEqual(0);
 
-  renderer.act(() => {
+  act(() => {
     scope.set({
       value: scope.get().value + 1,
     });
-    component.update(<ObjectScopeLabel scope={scope} />);
   });
 
-  // update the tree
-  tree = component.toTree();
-
   // validate the label state
-  state = getLabelState(tree);
+  state = getValue(screen);
   expect(state.value).toEqual(1);
 });

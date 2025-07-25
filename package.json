@@ -1,6 +1,6 @@
 {
   "name": "@pixelry/react-scopes",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Lightweight cross component state management allowing multiple components to independently access, use, and set the same shared state.",
   "main": "lib/index.js",
   "scripts": {
@@ -25,20 +25,28 @@
   ],
   "homepage": "https://www.pixelry.com",
   "devDependencies": {
-    "@babel/preset-env": "^7.23.3",
-    "@babel/preset-react": "^7.23.3",
-    "@babel/preset-typescript": "^7.23.3",
-    "@types/jest": "^29.5.10",
-    "@types/react": "^18.2.33",
-    "@types/react-test-renderer": "^18.0.7",
-    "babel-jest": "^29.7.0",
-    "jest": "^29.7.0",
-    "react": "^18.2.0",
-    "react-test-renderer": "^18.2.0",
-    "rimraf": "^5.0.5",
-    "typescript": "^5.2.2"
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/jest": "^30.0.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "babel-jest": "^30.0.5",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "react": "^19.1.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "react": ">=18"
+  },
+  "overrides": {
+    "glob": "^10.3.10"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
   }
 }

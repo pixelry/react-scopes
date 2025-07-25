@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import renderer from 'react-test-renderer';
+import { render, screen, Screen, fireEvent, act } from '@testing-library/react';
 import { useRecordScope, RecordScope, IRecordScope } from '../lib';
 
 type RecordScopeData = {
@@ -15,16 +15,20 @@ function RecordScopeButton(props: { scope: IRecordScope<RecordScopeData> }) {
     props.scope.delete('two');
   }, [props.scope]);
 
-  return <button onClick={handleClick}>inc</button>;
+  return (
+    <button title="button" onClick={handleClick}>
+      inc
+    </button>
+  );
 }
 
-function RecordScopeLabel(props: {
+function RecordScopeValue(props: {
   id: string;
   scope: IRecordScope<RecordScopeData>;
 }) {
   const value = props.scope.use(props.id) ?? 'unknown';
 
-  return JSON.stringify(value);
+  return <div title="value">{JSON.stringify(value)}</div>;
 }
 
 function RecordScopeParent() {
@@ -35,110 +39,78 @@ function RecordScopeParent() {
 
   return (
     <>
-      <RecordScopeLabel id="one" scope={scope}></RecordScopeLabel>
-      <RecordScopeLabel id="two" scope={scope}></RecordScopeLabel>
+      <RecordScopeValue id="one" scope={scope}></RecordScopeValue>
+      <RecordScopeValue id="two" scope={scope}></RecordScopeValue>
       <RecordScopeButton scope={scope}></RecordScopeButton>
     </>
   );
 }
 
+function getValue(screen: Screen, index: number = 0): any {
+  const value = screen.getAllByTitle('value')[index]?.textContent;
+  if (!value) {
+    return {};
+  }
+
+  return JSON.parse(value ?? '');
+}
+
+function getButton(screen: Screen): any {
+  return screen.getByTitle('button');
+}
+
 test('useRecordScope', () => {
-  function getLabelOneState(tree: any): any {
-    return JSON.parse(tree.rendered[0].rendered);
-  }
+  let state: any;
 
-  function getLabelTwoState(tree: any): any {
-    return JSON.parse(tree.rendered[1].rendered);
-  }
-
-  function getButton(tree: any): any {
-    return tree.rendered[2].rendered;
-  }
-
-  let tree: any;
-  let one: any;
-  let two: any;
-  let button: any;
-
-  const component = renderer.create(<RecordScopeParent />);
-
-  // update the tree
-  tree = component.toTree();
+  render(<RecordScopeParent />);
 
   // validate the label state
-  one = getLabelOneState(tree);
-  expect(one.value).toEqual(1);
-  two = getLabelTwoState(tree);
-  expect(two.value).toEqual(2);
+  state = getValue(screen, 0);
+  expect(state.value).toEqual(1);
+  state = getValue(screen, 1);
+  expect(state.value).toEqual(2);
 
-  renderer.act(() => {
-    button = getButton(tree).props.onClick();
-    component.update(<RecordScopeParent />);
-  });
-
-  // update the tree
-  tree = component.toTree();
+  // click the button
+  fireEvent.click(getButton(screen));
 
   // validate the label state
-  one = getLabelOneState(tree);
-  expect(one.value).toEqual(10);
-  two = getLabelTwoState(tree);
-  expect(two).toEqual('unknown');
+  state = getValue(screen, 0);
+  expect(state.value).toEqual(10);
+  state = getValue(screen, 1);
+  expect(state).toEqual('unknown');
 });
 
 test('RecordScope', () => {
-  function getLabelOneState(tree: any): any {
-    return JSON.parse(tree[0].rendered);
-  }
-
-  function getLabelTwoState(tree: any): any {
-    return JSON.parse(tree[1].rendered);
-  }
+  let state: any;
 
   const scope = new RecordScope<RecordScopeData>({
     one: { value: 1 },
     two: { value: 2 },
   });
 
-  let tree: any;
-  let one: any;
-  let two: any;
-
-  const component = renderer.create(
+  render(
     <>
-      <RecordScopeLabel id="one" scope={scope} />
-      <RecordScopeLabel id="two" scope={scope} />
+      <RecordScopeValue id="one" scope={scope} />
+      <RecordScopeValue id="two" scope={scope} />
     </>,
   );
 
-  // update the tree
-  tree = component.toTree();
-
   // validate the label state
-  one = getLabelOneState(tree);
-  expect(one.value).toEqual(1);
-  two = getLabelTwoState(tree);
-  expect(two.value).toEqual(2);
+  state = getValue(screen, 0);
+  expect(state.value).toEqual(1);
+  state = getValue(screen, 1);
+  expect(state.value).toEqual(2);
 
-  renderer.act(() => {
+  act(() => {
     scope.set('one', {
       value: scope.get('one')!.value * 10,
     });
     scope.delete('two');
-    component.update(
-      <>
-        <RecordScopeLabel id="one" scope={scope} />
-        <RecordScopeLabel id="two" scope={scope} />
-      </>,
-    );
   });
 
-  // update the tree
-  tree = component.toTree();
-
   // validate the label state
-  one = getLabelOneState(tree);
-  expect(one.value).toEqual(10);
-  two = getLabelTwoState(tree);
-  expect(two).toEqual('unknown');
+  state = getValue(screen, 0);
+  expect(state.value).toEqual(10);
+  state = getValue(screen, 1);
+  expect(state).toEqual('unknown');
 });

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import renderer from 'react-test-renderer';
+import { render, screen, Screen, fireEvent, act } from '@testing-library/react';
 import { useArrayScope, ArrayScope, IArrayScope } from '../lib';
 
 function ArrayScopeButton(props: { scope: IArrayScope<number> }) {
@@ -8,13 +8,17 @@ function ArrayScopeButton(props: { scope: IArrayScope<number> }) {
     props.scope.set([...props.scope.get(), max + 1]);
   }, [props.scope]);
 
-  return <button onClick={handleClick}>add</button>;
+  return (
+    <button title="button" onClick={handleClick}>
+      add
+    </button>
+  );
 }
 
-function ArrayScopeLabel(props: { scope: IArrayScope<number> }) {
+function ArrayScopeValue(props: { scope: IArrayScope<number> }) {
   const value = props.scope.use();
 
-  return JSON.stringify(value);
+  return <div title="value">{JSON.stringify(value)}</div>;
 }
 
 function ArrayScopeParent() {
@@ -22,75 +26,59 @@ function ArrayScopeParent() {
 
   return (
     <>
-      <ArrayScopeLabel scope={scope}></ArrayScopeLabel>
+      <ArrayScopeValue scope={scope}></ArrayScopeValue>
       <ArrayScopeButton scope={scope}></ArrayScopeButton>
     </>
   );
 }
 
+function getValue(screen: Screen): any {
+  const value = screen.getByTitle('value')?.textContent;
+  if (!value) {
+    return [];
+  }
+
+  return JSON.parse(value);
+}
+
+function getButton(screen: Screen): any {
+  return screen.getByTitle('button');
+}
+
 test('useArrayScope', () => {
-  function getLabelState(tree: any): any {
-    return JSON.parse(tree.rendered[0].rendered);
-  }
-
-  function getButton(tree: any): any {
-    return tree.rendered[1].rendered;
-  }
-
-  let tree: any;
   let state: any;
-  let button: any;
 
-  const component = renderer.create(<ArrayScopeParent />);
-
-  // update the tree
-  tree = component.toTree();
+  render(<ArrayScopeParent />);
 
   // validate the label state
-  state = getLabelState(tree);
+  state = getValue(screen);
   expect(state).toEqual([0]);
 
-  renderer.act(() => {
-    button = getButton(tree).props.onClick();
-    component.update(<ArrayScopeParent />);
-  });
-
-  // update the tree
-  tree = component.toTree();
+  // click the button
+  fireEvent.click(getButton(screen));
 
   // validate the label state
-  state = getLabelState(tree);
+  state = JSON.parse(screen.getByTitle('value').textContent ?? '');
   expect(state).toEqual([0, 1]);
 });
 
 test('ArrayScope', () => {
-  function getLabelState(tree: any): any {
-    return JSON.parse(tree.rendered);
-  }
-
   const scope = new ArrayScope<number>([0]);
 
-  let tree: any;
   let state: any;
 
-  const component = renderer.create(<ArrayScopeLabel scope={scope} />);
-
-  // update the tree
-  tree = component.toTree();
+  render(<ArrayScopeValue scope={scope} />);
 
   // validate the label state
-  state = getLabelState(tree);
+  state = getValue(screen);
   expect(state).toEqual([0]);
 
-  renderer.act(() => {
+  // update the scope
+  act(() => {
     scope.set([0, 1]);
-    component.update(<ArrayScopeLabel scope={scope} />);
   });
 
-  // update the tree
-  tree = component.toTree();
-
   // validate the label state
-  state = getLabelState(tree);
+  state = getValue(screen);
   expect(state).toEqual([0, 1]);
 });
